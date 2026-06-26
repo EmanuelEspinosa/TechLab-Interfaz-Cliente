@@ -2,7 +2,7 @@
 const BASE_URL = "http://localhost:8080";
 
 // ESTADOS LOCALES DE LA APP
-let DB_PRODUCTOS = []; // Guardamos los productos que vienen de la BD
+let DB_PRODUCTOS = []; // Guardo los productos que vienen de la BD
 let CARRITO_LOCAL = []; // Estructura: [{ idProducto, cantidad, nombre, descripcion, maxStock }]
 
 // ==========================================
@@ -41,7 +41,6 @@ function renderizarProductosCatalogo() {
     }
 
     DB_PRODUCTOS.forEach(prod => {
-        // Buscamos si el producto ya está en el carrito para calcular el stock visual disponible
         const itemEnCarrito = CARRITO_LOCAL.find(item => item.idProducto === prod.id);
         const stockVisual = itemEnCarrito ? (prod.stock - itemEnCarrito.cantidad) : prod.stock;
 
@@ -89,7 +88,6 @@ document.getElementById("formProducto").addEventListener("submit", async (e) => 
     const marca = document.getElementById("prodMarca").value;
     const urlImagen = document.getElementById("prodUrlImagenInput").value;
 
-    // Armamos el payload estructurado como lo espera tu Entidad en Spring Boot
     const payload = {
         nombre,
         descripcion,
@@ -104,7 +102,7 @@ document.getElementById("formProducto").addEventListener("submit", async (e) => 
         let url = `${BASE_URL}/productos`;
         let metodo = "POST";
 
-        if (id) { // Si hay ID en el input oculto, muta a PUT (Modificación)
+        if (id) { 
             url = `${BASE_URL}/productos/${id}`;
             metodo = "PUT";
         }
@@ -117,8 +115,8 @@ document.getElementById("formProducto").addEventListener("submit", async (e) => 
 
         if (res.ok) {
             alert(id ? "¡Producto actualizado con éxito!" : "¡Producto creado con éxito!");
-            cancelarEdicionProducto(); // Limpia el formulario y resetea botones
-            await actualizarDatosSistema(); // Recarga las tablas y el catálogo visual
+            cancelarEdicionProducto(); 
+            await actualizarDatosSistema(); 
         } else {
             const errText = await res.text();
             alert("Error al procesar el producto: " + errText);
@@ -163,7 +161,6 @@ function prepararEdicionProducto(prod) {
     document.getElementById("prodStock").value = prod.stock;
     document.getElementById("prodUrlImagenInput").value = prod.urlImagen || "";
 
-    // Cambiamos visualmente el comportamiento del formulario
     document.getElementById("btnGuardarProd").innerText = "Actualizar Cambios";
     document.getElementById("btnGuardarProd").className = "btn btn-warning w-100 fw-bold";
     document.getElementById("btnCancelarProdEdicion").classList.remove("d-none");
@@ -191,13 +188,11 @@ function renderizarTablaProductosAdmin(productos) {
     }
 
     productos.forEach(p => {
-        // Formateamos el precio para que se vea lindo ($ 1.200,00)
         const precioFormateado = parseFloat(p.precio || 0).toLocaleString("es-AR", {
             style: "currency",
             currency: "ARS"
         });
 
-        // Obtenemos el nombre de la categoría de forma segura
         const nombreCat = p.categoria ? p.categoria.nombre : '<span class="text-danger">Sin Categoría</span>';
 
         tbody.innerHTML += `
@@ -233,7 +228,6 @@ function actualizarSelectsDeCategorias(categorias) {
     const select = document.getElementById("prodCategoria");
     if (!select) return;
 
-    // Dejamos solo la opción por defecto
     select.innerHTML = '<option value="">Seleccione una categoría...</option>';
 
     categorias.forEach(cat => {
@@ -256,7 +250,6 @@ function agregarAlCarritoLocal(id, nombre, descripcion, maxStock, precio) {
             return;
         }
     } else {
-        // ¡Guardamos el precio en el objeto del carrito local!
         CARRITO_LOCAL.push({ idProducto: id, cantidad: 1, nombre, descripcion, maxStock, precio: precio });
     }
 
@@ -320,7 +313,6 @@ function renderizarCarritoLocal() {
     btnConfirmar.disabled = false;
 
     CARRITO_LOCAL.forEach(item => {
-        // Calculamos el subtotal de este producto
         const subtotalProducto = item.precio * item.cantidad;
 
         tbody.innerHTML += `
@@ -363,7 +355,6 @@ function renderizarCarritoLocal() {
     }
 }
 
-// POST - ENVIAR EL CARRITO ENTERO COMO UN PEDIDO EN CASCADA
 async function confirmarPedidoBD() {
     if (CARRITO_LOCAL.length === 0) return;
 
@@ -373,10 +364,10 @@ async function confirmarPedidoBD() {
 
         return {
             cantidad: parseInt(item.cantidad),
-            subtotal: subtotalCalculado, // Le mandamos el subtotal real numérico
+            subtotal: subtotalCalculado, 
             producto: {
                 id: parseInt(item.idProducto),
-                precio: precioArticulo,      // Inicializamos en el JSON para evitar el "null into double"
+                precio: precioArticulo,      
                 stock: parseInt(item.maxStock || 0),
                 nombre: item.nombre || ""
             }
@@ -384,7 +375,7 @@ async function confirmarPedidoBD() {
     });
 
     const payload = {
-        total: 0.0, // Tu servicio lo calcula de cero, así que mandamos un valor base
+        total: 0.0, 
         fechaAlta: new Date().toISOString(),
         lineas: lineasPayload
     };
@@ -459,7 +450,7 @@ document.getElementById("formCategoria").addEventListener("submit", async (e) =>
         let url = `${BASE_URL}/categorias`;
         let metodo = "POST";
 
-        if (id) { // Si hay ID, estamos haciendo un UPDATE (PUT)
+        if (id) { 
             url = `${BASE_URL}/categorias/${id}`;
             metodo = "PUT";
         }
@@ -525,7 +516,6 @@ async function obtenerPedidosBD() {
         }
 
         pedidos.forEach((p, index) => {
-            // Generamos las filas de la subtabla de detalles por cada ítem/línea de pedido
             let filasDetalle = "";
             if (p.lineas && p.lineas.length > 0) {
                 p.lineas.forEach(linea => {
@@ -615,7 +605,7 @@ async function eliminarPedidoBD(id) {
             const res = await fetch(`${BASE_URL}/pedidos/${id}`, { method: "DELETE" });
             if (res.ok || res.status === 204) {
                 alert("Pedido eliminado. Se restableció el stock correspondiente en los productos.");
-                await actualizarDatosSistema(); // Recarga todo para ver el impacto inmediato del stock
+                await actualizarDatosSistema(); 
             } else {
                 alert("Error al intentar anular el pedido en el servidor.");
             }
