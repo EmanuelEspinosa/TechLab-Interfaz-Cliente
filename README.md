@@ -1,4 +1,4 @@
-# TechLab - Interfaz Cliente Desacoplada (Frontend-Tester)
+# TechLab - Interfaz Cliente (Frontend-Tester)
 
 Este repositorio contiene la capa de presentación de forma totalmente independiente y desacoplada para el ecosistema **TechLab e-Commerce**, desarrollado en el marco del curso **Java Back-End de Talento-Tech**.
 
