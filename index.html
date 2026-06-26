@@ -1,0 +1,260 @@
+<!DOCTYPE html>
+<html lang="es">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>TechLab - Panel de Gestión e-Commerce</title>
+    <link rel="icon" type="image/png" href="https://cdn-icons-png.flaticon.com/512/9431/9431186.png">
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
+</head>
+
+<body class="bg-light">
+
+    <nav class="navbar navbar-expand-lg navbar-dark bg-dark shadow-sm">
+        <div class="container">
+            <a class="navbar-brand font-monospace font-weight-bold" href="#">
+                <i class="fa-solid fa-laptop-code text-info me-2"></i>TechLab Backend-Tester
+            </a>
+            <h6 class="font-monospace font-weight-bold" style="color: #FFF; font-weight: bolder;">Emanuel Espinosa</h6>
+        </div>
+    </nav>
+
+    <div class="container my-4">
+        <ul class="nav nav-pills nav-fill gap-2 p-1 small bg-white border rounded-5 shadow-sm mb-4" id="apiTabs"
+            role="tablist">
+            <li class="nav-item" role="presentation">
+                <button class="nav-link active rounded-5" id="productos-tab" data-bs-toggle="tab"
+                    data-bs-target="#productos" type="button" role="tab">
+                    <i class="fa-solid fa-box-open me-2"></i>Productos al Público
+                </button>
+            </li>
+            <li class="nav-item" role="presentation">
+                <button class="nav-link rounded-5" id="carrito-tab" data-bs-toggle="tab" data-bs-target="#carrito"
+                    type="button" role="tab">
+                    <i class="fa-solid fa-cart-shopping me-2"></i>Mi Carrito
+                    <span id="badgeCarrito" class="badge bg-danger rounded-pill ms-1 d-none">0</span>
+                </button>
+            </li>
+            <li class="nav-item" role="presentation">
+                <button class="nav-link rounded-5" id="categorias-tab" data-bs-toggle="tab" data-bs-target="#categorias"
+                    type="button" role="tab">
+                    <i class="fa-solid fa-tags me-2"></i>ABM Categorías
+                </button>
+            </li>
+            <li class="nav-item" role="presentation">
+                <button class="nav-link rounded-5" id="productos-tab" data-bs-toggle="tab" data-bs-target="#abmProductos"
+                    type="button" role="tab">
+                    <i class="fa-solid fa-tags me-2"></i></i>ABM Productos
+                </button>
+            <li>
+            <li class="nav-item" role="presentation">
+                <button class="nav-link rounded-5" id="pedidos-tab" data-bs-toggle="tab" data-bs-target="#pedidos"
+                    type="button" role="tab">
+                    <i class="fa-solid fa-receipt me-2"></i>Historial de Pedidos
+                </button>
+            </li>
+            
+
+            </li>
+        </ul>
+
+        <div class="tab-content" id="apiTabsContent">
+
+            <div class="tab-pane fade show active" id="productos" role="tabpanel">
+                <h3 class="mb-3 text-secondary"><i class="fa-solid fa-store me-2"></i>Catálogo de Productos</h3>
+                <div class="row" id="contenedorProductos"></div>
+            </div>
+
+            <div class="tab-pane fade" id="carrito" role="tabpanel">
+                <div class="card shadow-sm">
+                    <div class="card-header bg-danger text-white d-flex justify-content-between align-items-center">
+                        <h5 class="mb-0"><i class="fa-solid fa-basket-shopping me-2"></i>Tu Carrito</h5>
+                        <button class="btn btn-sm btn-outline-light" onclick="vaciarCarritoLocal()"><i
+                                class="fa-solid fa-trash me-1"></i>Vaciar</button>
+                    </div>
+                    <div class="card-body">
+                        <div class="table-responsive">
+                            <table class="table align-middle">
+                                <thead>
+                                    <tr>
+                                        <th>Producto</th>
+                                        <th>Descripción</th>
+                                        <th>Precio</th>
+                                        <th class="text-center">Cantidad</th>
+                                        <th>Subtotal</th>
+                                        <th class="text-end">Acción</th>
+                                    </tr>
+                                </thead>
+                                <tbody id="tablaCarrito">
+                                </tbody>
+                            </table>
+                        </div>
+                        <div id="totalAPagar" style="text-align: right;"></div>
+                        <div class="text-end mt-3">
+                            <button id="btnConfirmarPedido" class="btn btn-success lg shadow"
+                                onclick="confirmarPedidoBD()" disabled>
+                                <i class="fa-solid fa-cloud-arrow-up me-2"></i>Confirmar Pedido (Impactar en BD)
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+
+            <div class="tab-pane fade" id="abmProductos" role="tabpanel">
+
+                <div class="card shadow-sm mb-4">
+                    <div class="card-header bg-dark text-white fw-bold">
+                        <i class="fa-solid fa-box-open me-2"></i>Gestión de Productos
+                    </div>
+                    <div class="card-body">
+                        <form id="formProducto">
+                            <input type="hidden" id="prodId">
+
+                            <div class="row">
+                                <div class="col-md-6 mb-3">
+                                    <label class="form-label small fw-bold">Nombre del Producto</label>
+                                    <input type="text" id="prodNombre" class="form-control" placeholder="Ej: Monitor 24"
+                                        required>
+                                </div>
+                                <div class="col-md-6 mb-3">
+                                    <label class="form-label small fw-bold">Categoría</label>
+                                    <select id="prodCategoria" class="form-select" required>
+                                        <option value="">Seleccione una categoría...</option>
+                                    </select>
+                                </div>
+                            </div>
+
+                            <div class="mb-3">
+                                <label class="form-label small fw-bold">Descripción</label>
+                                <textarea id="prodDescripcion" class="form-control" rows="2"
+                                    placeholder="Detalles del artículo..."></textarea>
+                            </div>
+
+                            <div class="row">
+                                <div class="col-md-4 mb-3">
+                                    <label class="form-label small fw-bold">Precio ($)</label>
+                                    <input type="number" step="0.01" id="prodPrecio" class="form-control"
+                                        placeholder="0.00" required>
+                                </div>
+                                <div class="col-md-4 mb-3">
+                                    <label class="form-label small fw-bold">Stock Inicial</label>
+                                    <input type="number" id="prodStock" class="form-control" placeholder="0" required>
+                                </div>
+                                <div class="col-md-4 mb-3">
+                                    <label class="form-label small fw-bold">Marca del Producto</label>
+                                    <input type="text" id="prodMarca" class="form-control" placeholder="Ej: Samsung"
+                                        required>
+                                </div>
+                                <div class="col-md-12 mb-3">
+                                    <label class="form-label small fw-bold">URL de la Imagen</label>
+                                    <input type="text" id="prodUrlImagenInput" class="form-control"
+                                        placeholder="https://i.ibb.co/...">
+                                </div>
+                            </div>
+
+                            <button type="submit" class="btn btn-primary w-100 fw-bold" id="btnGuardarProd">Guardar
+                                Producto</button>
+                            <button type="button" class="btn btn-secondary w-100 mt-2 d-none"
+                                id="btnCancelarProdEdicion" onclick="cancelarEdicionProducto()">Cancelar
+                                Edición</button>
+                        </form>
+                    </div>
+                </div>
+                <div class="card shadow-sm">
+                    <div class="card-header bg-secondary text-white fw-bold">
+                        <i class="fa-solid fa-list me-2"></i>Listado de Productos Registrados
+                    </div>
+                    <div class="card-body p-0">
+                        <div class="table-responsive">
+                            <table class="table table-striped table-hover align-middle mb-0 small">
+                                <thead class="table-light">
+                                    <tr>
+                                        <th style="width: 60px;">ID</th>
+                                        <th>Nombre</th>
+                                        <th>Marca</th>
+                                        <th>Categoría</th>
+                                        <th>Precio</th>
+                                        <th class="text-center">Stock</th>
+                                        <th class="text-center" style="width: 120px;">Acciones</th>
+                                    </tr>
+                                </thead>
+                                <tbody id="tablaProductosAdmin"></tbody>
+                            </table>
+                        </div>
+                    </div>
+                </div>
+
+            </div>
+
+            <div class="tab-pane fade" id="categorias" role="tabpanel">
+                <div class="row">
+                    <div class="col-md-4">
+                        <div class="card shadow-sm mb-3">
+                            <div class="card-header bg-primary text-white">
+                                <h5 id="tituloFormCat" class="mb-0">Registrar Categoría</h5>
+                            </div>
+                            <div class="card-body">
+                                <form id="formCategoria">
+                                    <input type="hidden" id="catId">
+                                    <div class="mb-3">
+                                        <label class="form-label small fw-bold">Nombre</label>
+                                        <input type="text" id="catNombre" class="form-control"
+                                            placeholder="Ej: componentes" required>
+                                    </div>
+                                    <div class="mb-3">
+                                        <label class="form-label small fw-bold">Descripción</label>
+                                        <textarea id="catDescripcion" class="form-control" rows="2"
+                                            placeholder="Opcional..."></textarea>
+                                    </div>
+                                    <button type="submit" class="btn btn-success w-100" id="btnGuardarCat">Guardar
+                                        Categoría</button>
+                                    <button type="button" class="btn btn-secondary w-100 mt-2 d-none"
+                                        id="btnCancelarEdicion" onclick="cancelarEdicionCategoria()">Cancelar
+                                        Edición</button>
+                                </form>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-md-8">
+                        <div class="card shadow-sm">
+                            <div class="card-header bg-dark text-white">
+                                <h5 class="mb-0">Categorías Existentes</h5>
+                            </div>
+                            <div class="card-body p-0">
+                                <table class="table table-striped table-hover mb-0 align-middle">
+                                    <thead class="table-light">
+                                        <tr>
+                                            <th class="ps-3">ID</th>
+                                            <th>Nombre</th>
+                                            <th>Descripción</th>
+                                            <th class="text-end pe-3">Acciones</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody id="tablaCategorias">
+                                    </tbody>
+                                </table>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="tab-pane fade" id="pedidos" role="tabpanel">
+                <h3 class="mb-3 text-secondary"><i class="fa-solid fa-clock-rotate-left me-2"></i>Pedidos Registrados en
+                    BD</h3>
+                <div id="listaPedidos" class="accordion shadow-sm">
+                </div>
+            </div>
+
+        </div>
+    </div>
+
+    <script src="script.js"></script>
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+</body>
+
+</html>
